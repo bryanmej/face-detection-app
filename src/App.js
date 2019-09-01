@@ -6,11 +6,11 @@ import ImageLinkForm from "./components/imageLinkForm";
 import FaceRecognition from "./components/FaceRecognition";
 import Rank from "./components/Rank";
 import Particles from "react-particles-js";
-// import Clarifai from "clarifai";
+import Clarifai from "clarifai";
 
-// const app = new Clarifai.App({
-//   apiKey: "7e9f9f99be7a46aa87ac637652fe7fe0"
-// });
+const app = new Clarifai.App({
+  apiKey: "7e9f9f99be7a46aa87ac637652fe7fe0"
+});
 
 const particleOptions = {
   particles: {
@@ -25,38 +25,44 @@ const particleOptions = {
 };
 
 function App() {
-  const [state, setInput] = useState({});
-
-  // const handleInput = e => {
-  //   setInput({
-  //     input: e.target.value
-  //   });
-  //   console.log(e.target.value);
-  // };
+  const [state, setInput] = useState({
+    input: "",
+    imageUrl: ""
+  });
 
   const handleInput = e => {
-    e.persist();
-    setInput(prevState => ({
-      ...prevState,
-      [e.target.value]: e.target.value
-    }));
+    setInput({
+      input: e.target.value
+    });
+    console.log(e.target.value);
   };
 
   const onSubmit = e => {
-    console.log(state);
-    //   app.models
-    //     .predict(
-    //       Clarifai.COLOR_MODEL,
-    //       // URL
-    //       "https://samples.clarifai.com/metro-north.jpg"
-    //     )
-    //     .then(
-    //       function(response) {
-    //         console.log(response);
-    //       },
-    //       function(err) {}
-    //     );
+    e.persist();
+    setInput(prevState => ({
+      ...prevState,
+      imageUrl: state.input
+    }));
+    // app.models
+    //   .predict(
+    //     Clarifai.FACE_DETECT_MODEL,
+    //     // URL
+    //     "https://samples.clarifai.com/metro-north.jpg"
+    //   )
+    //   .then(
+    //     function(response) {
+    //       console.log(response);
+    //     },
+    //     function(err) {}
+    //   );
   };
+
+  // const onSubmit = e => {
+  //   setInput({
+  //     imageUrl: state.input
+  //   });
+  //   console.log(state);
+  // };
 
   return (
     <div className="App">
@@ -65,7 +71,7 @@ function App() {
       <Logo />
       <Rank />
       <ImageLinkForm handleInput={handleInput} onSubmit={onSubmit} />
-      <FaceRecognition />
+      <FaceRecognition imageUrl={state.imageUrl} />
     </div>
   );
 }
