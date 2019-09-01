@@ -27,42 +27,59 @@ const particleOptions = {
 function App() {
   const [state, setInput] = useState({
     input: "",
-    imageUrl: ""
+    imageUrl: "",
+    box: {
+      topRow: 0,
+      rightCol: 0,
+      bottomRow: 0,
+      leftCol: 0
+    }
   });
+
+  const calculateLocation = data => {
+    const face = data.outputs[0].data.regions[0].region_info.bounding_box;
+    const image = document.getElementById("inputImage");
+    const width = Number(image.width);
+    const height = Number(image.height);
+    return {
+      leftCol: face.left_col * width,
+      topRow: face.top_row * height,
+      rightCol: width - face.right_col * width,
+      bottomRow: height - face.bottom_row * height
+    };
+  };
+
+  const displayBox = box => {
+    setInput({
+      imageUrl: state.input,
+      box: box
+    });
+  };
 
   const handleInput = e => {
     setInput({
-      input: e.target.value
+      input: e.target.value,
+      imageUrl: state.input,
+      box: state.box
     });
-    console.log(e.target.value);
   };
 
   const onSubmit = e => {
     e.persist();
-    setInput(prevState => ({
-      ...prevState,
-      imageUrl: state.input
-    }));
-    // app.models
-    //   .predict(
-    //     Clarifai.FACE_DETECT_MODEL,
-    //     // URL
-    //     "https://samples.clarifai.com/metro-north.jpg"
-    //   )
-    //   .then(
-    //     function(response) {
-    //       console.log(response);
-    //     },
-    //     function(err) {}
-    //   );
+    // setInput(prevState => ({
+    //   ...prevState,
+    //   imageUrl: state.input
+    // }));
+    setInput({
+      input: state.input,
+      imageUrl: state.input,
+      box: state.box
+    });
+    app.models
+      .predict(Clarifai.FACE_DETECT_MODEL, state.input)
+      .then(response => displayBox(calculateLocation(response)))
+      .catch(err => console.log(err));
   };
-
-  // const onSubmit = e => {
-  //   setInput({
-  //     imageUrl: state.input
-  //   });
-  //   console.log(state);
-  // };
 
   return (
     <div className="App">
@@ -71,7 +88,7 @@ function App() {
       <Logo />
       <Rank />
       <ImageLinkForm handleInput={handleInput} onSubmit={onSubmit} />
-      <FaceRecognition imageUrl={state.imageUrl} />
+      <FaceRecognition imageUrl={state.imageUrl} box={state.box} />
     </div>
   );
 }
