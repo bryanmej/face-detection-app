@@ -3,6 +3,11 @@ body {
   font-family: "Courier New", Courier, monospace;
 }
 
+.center {
+  display: flex;
+  justify-content: center;
+}
+
 .particles {
   position: fixed;
   top: 0;
@@ -14,11 +19,6 @@ body {
 
 .Tilt {
   background: linear-gradient(89deg, #ff5edf 0%, #04c8de 100%);
-}
-
-.center {
-  display: flex;
-  justify-content: center;
 }
 
 .form {

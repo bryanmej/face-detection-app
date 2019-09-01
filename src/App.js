@@ -8,10 +8,12 @@ import Rank from "./components/Rank";
 import Particles from "react-particles-js";
 import Clarifai from "clarifai";
 
+// API Key for Clarifai
 const app = new Clarifai.App({
   apiKey: "7e9f9f99be7a46aa87ac637652fe7fe0"
 });
 
+// Particle.js configuration
 const particleOptions = {
   particles: {
     number: {
@@ -24,6 +26,7 @@ const particleOptions = {
   }
 };
 
+// Main app component
 function App() {
   const [state, setInput] = useState({
     input: "",
@@ -36,6 +39,37 @@ function App() {
     }
   });
 
+  // Set input value
+  const handleInput = e => {
+    e.persist();
+    setInput(prevState => ({
+      ...prevState,
+      input: e.target.value
+    }));
+  };
+
+  // Set image url and api request
+  const onSubmit = e => {
+    setInput(prevState => ({
+      ...prevState,
+      imageUrl: state.input
+    }));
+
+    app.models
+      .predict(Clarifai.FACE_DETECT_MODEL, state.input)
+      .then(response => displayBox(calculateLocation(response)))
+      .catch(err => console.log(err));
+  };
+
+  // Set box with frame coordinates
+  const displayBox = box => {
+    setInput(prevState => ({
+      ...prevState,
+      box: box
+    }));
+  };
+
+  // Obtain frame coordinates
   const calculateLocation = data => {
     const face = data.outputs[0].data.regions[0].region_info.bounding_box;
     const image = document.getElementById("inputImage");
@@ -47,38 +81,6 @@ function App() {
       rightCol: width - face.right_col * width,
       bottomRow: height - face.bottom_row * height
     };
-  };
-
-  const displayBox = box => {
-    setInput({
-      imageUrl: state.input,
-      box: box
-    });
-  };
-
-  const handleInput = e => {
-    setInput({
-      input: e.target.value,
-      imageUrl: state.input,
-      box: state.box
-    });
-  };
-
-  const onSubmit = e => {
-    e.persist();
-    // setInput(prevState => ({
-    //   ...prevState,
-    //   imageUrl: state.input
-    // }));
-    setInput({
-      input: state.input,
-      imageUrl: state.input,
-      box: state.box
-    });
-    app.models
-      .predict(Clarifai.FACE_DETECT_MODEL, state.input)
-      .then(response => displayBox(calculateLocation(response)))
-      .catch(err => console.log(err));
   };
 
   return (
